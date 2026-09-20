@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Klarpunkt LMS | German Prep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --card-inner: #0f172a;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #10b981;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+
+        /* Header Bar */
+        .app-header {
+            background: var(--card);
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-brand { font-weight: 800; font-size: 1.1rem; color: #ffffff; display: flex; align-items: center; gap: 8px; }
+        .app-brand-dot { width: 10px; height: 10px; background: #f97316; border-radius: 50%; }
+        .user-level { font-family: 'Space Mono', monospace; font-size: 0.7rem; background: #312e81; color: #a5b4fc; padding: 4px 8px; border-radius: 6px; }
+
+        /* Navigation Views */
+        .view-content { display: none; padding: 16px; max-width: 500px; margin: 0 auto; }
+        .view-content.active { display: block; }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 25%;
+        }
+        .nav-item.active { color: #60a5fa; }
+        .nav-icon { font-size: 1.2rem; }
+
+        /* Generic Card Styling */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: #ffffff; }
+        .card-desc { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+
+        /* Form Inputs */
+        .input-group { margin-bottom: 14px; }
+        label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+            display: block;
+        }
+        input[type="number"]:focus, select:focus { border-color: var(--accent); }
+
+        /* Primary Action Buttons */
+        .btn-primary {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            text-align: center;
+        }
+        .btn-primary:active { background: var(--accent-hover); transform: scale(0.98); }
+
+        /* Topic Modules List */
+        .topic-card {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .topic-card:active { border-color: var(--accent); }
+        .topic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .topic-tag { font-family: 'Space Mono', monospace; font-size: 0.65rem; background: #0284c7; color: #ffffff; padding: 2px 6px; border-radius: 4px; }
+        .topic-tag.completed { background: var(--success); }
+
+        /* Detailed Lesson Overlay Modal */
+        .lesson-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .lesson-modal.active { display: block; }
+        .close-btn { background: #334155; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; float: right; }
+
+        /* Quiz Box */
+        .quiz-box { background: var(--card); padding: 14px; border-radius: 10px; border: 1px solid var(--border); margin-top: 14px; }
+        .quiz-option { background: var(--card-inner); border: 1px solid var(--border); padding: 10px; border-radius: 8px; margin-top: 8px; cursor: pointer; font-size: 0.85rem; }
+        .quiz-option.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .quiz-option.wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="app-header">
+        <div class="app-brand"><div class="app-brand-dot"></div> Klarpunkt LMS</div>
+        <div class="user-level" id="headerProgress">0/4 Topics Done</div>
+    </div>
+
+    <!-- VIEW 1: DASHBOARD & CALCULATOR -->
+    <div id="view-dashboard" class="view-content active">
+        <div class="card">
+            <h2 class="card-title">Exam Readiness Calculator</h2>
+            <p class="card-desc">Enter your practice scores to calculate your weekly study distribution.</p>
+
+            <div class="input-group">
+                <label for="calcLevel">Target Exam Level</label>
+                <select id="calcLevel">
+                    <option value="A1">Goethe / telc A1</option>
+                    <option value="A2" selected>Goethe / telc A2</option>
+                    <option value="B1">Goethe / telc B1</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="input-group"><label for="rScore">Lesen (Reading)</label><input type="number" id="rScore" value="50" min="0" max="100"></div>
+                <div class="input-group"><label for="lScore">Hören (Listening)</label><input type="number" id="lScore" value="45" min="0" max="100"></div>
+                <div class="input-group"><label for="wScore">Schreiben (Writing)</label><input type="number" id="wScore" value="60" min="0" max="100"></div>
+                <div class="input-group"><label for="sScore">Sprechen (Speaking)</label><input type="number" id="sScore" value="65" min="0" max="100"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="wHours">Weekly Available Hours</label>
+                <input type="number" id="wHours" value="10" min="1" max="50">
+            </div>
+
+            <button type="button" class="btn-primary" onclick="runCalculation()">Calculate Study Schedule</button>
+        </div>
+
+        <div id="calcOutput" class="card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 0.8rem; color: var(--muted);">Average Readiness: <strong id="avgVal" style="color: white;">0%</strong></span>
+                <span id="passStatus" style="font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">ESTIMATE</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem;" id="hoursBreakdown"></div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: STRUCTURED COURSE (LEARNING MODULES) -->
+    <div id="view-course" class="view-content">
+        <div class="card">
+            <h2 class="card-title">German Learning Path</h2>
+            <p class="card-desc">Select a topic below to start learning step-by-step.</p>
+            
+            <div class="topic-card" onclick="openLesson(1)">
+                <div class="topic-header">
+                    <strong>1. Self-Introductions & Basics</strong>
+                    <span class="topic-tag" id="tag-1">START TOPIC</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--muted);">Master Part 1 of Speaking: Name, origin, profession, hobbies.</div>
+            </div>
+
+            <div class="topic-card" onclick="openLesson(2)">
+                <div class="topic-header">
+                    <strong>2. Sentence Structure (Verb Position 2)</strong>
+                    <span class="topic-tag" id="tag-2">START TOPIC</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--muted);">The fundamental rule for Hauptsätze in A1 & A2 German.</div>
+            </div>
+
+            <div class="topic-card" onclick="openLesson(3)">
+                <div class="topic-header">
+                    <strong>3. Formal Email Writing Formula</strong>
+                    <span class="topic-tag" id="tag-3">START TOPIC</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--muted);">Salutations, reason for writing, and formal closings.</div>
+            </div>
+
+            <div class="topic-card" onclick="openLesson(4)">
+                <div class="topic-header">
+                    <strong>4. Joint Planning Task (Sprechen)</strong>
+                    <span class="topic-tag" id="tag-4">START TOPIC</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--muted);">How to make proposals and agree on appointments.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 3: EXAM PROMPTS -->
+    <div id="view-prompts" class="view-content">
+        <div class="card">
+            <h2 class="card-title">Real Exam Practice Prompts</h2>
+            <p class="card-desc">Practice speaking and writing questions commonly asked in Goethe & telc exams.</p>
+
+            <div style="background: var(--card-inner); padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #3b82f6;">
+                <strong style="font-size: 0.85rem; color: #60a5fa;">Schreiben Prompt A2:</strong>
+                <p style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">Sie können am Samstag nicht zum Deutschkurs kommen. Schreiben Sie eine E-Mail an Ihre Lehrerin, Frau Müller.</p>
+            </div>
+
+            <div style="background: var(--card-inner); padding: 12px; border-radius: 8px; border-left: 3px solid #10b981;">
+                <strong style="font-size: 0.85rem; color: #34d399;">Sprechen Prompt A1:</strong>
+                <p style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">Thema: Einkaufen. Stellen Sie eine Frage mit dem Wort "Supermarkt".</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 4: PROGRESS TRACKER -->
+    <div id="view-progress" class="view-content">
+        <div class="card">
+            <h2 class="card-title">Course Progress</h2>
+            <p class="card-desc">Track completed lessons across your learning journey.</p>
+            <div style="font-size: 2rem; font-weight: 800; color: #60a5fa;" id="progressPercentage">0%</div>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">Completed topics are stored locally on your device.</p>
+            <button type="button" class="btn-primary" onclick="resetProgress()" style="background: #e11d48; margin-top: 16px;">Reset All Progress</button>
+        </div>
+    </div>
+
+    <!-- LESSON OVERLAY MODAL -->
+    <div id="lessonModal" class="lesson-modal">
+        <button class="close-btn" onclick="closeLesson()">✕ Close</button>
+        <div id="lessonBody" style="margin-top: 40px;"></div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchNav('view-dashboard', this)"><span class="nav-icon">📊</span>Planner</button>
+        <button class="nav-item" onclick="switchNav('view-course', this)"><span class="nav-icon">📚</span>Course</button>
+        <button class="nav-item" onclick="switchNav('view-prompts', this)"><span class="nav-icon">📝</span>Prompts</button>
+        <button class="nav-item" onclick="switchNav('view-progress', this)"><span class="nav-icon">🏆</span>Progress</button>
+    </div>
+
+    <script>
+        let completedTopics = JSON.parse(localStorage.getItem('klarpunkt_completed') || '[]');
+
+        function updateProgressUI() {
+            document.getElementById('headerProgress').innerText = `${completedTopics.length}/4 Topics Done`;
+            document.getElementById('progressPercentage').innerText = `${Math.round((completedTopics.length / 4) * 100)}%`;
+            
+            for (let i = 1; i <= 4; i++) {
+                const tag = document.getElementById(`tag-${i}`);
+                if (tag) {
+                    if (completedTopics.includes(i)) {
+                        tag.innerText = 'COMPLETED ✓';
+                        tag.className = 'topic-tag completed';
+                    } else {
+                        tag.innerText = 'START TOPIC';
+                        tag.className = 'topic-tag';
+                    }
+                }
+            }
+        }
+
+        function switchNav(viewId, btn) {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function runCalculation() {
+            const r = parseFloat(document.getElementById('rScore').value) || 0;
+            const l = parseFloat(document.getElementById('lScore').value) || 0;
+            const w = parseFloat(document.getElementById('wScore').value) || 0;
+            const s = parseFloat(document.getElementById('sScore').value) || 0;
+            const hrs = parseFloat(document.getElementById('wHours').value) || 10;
+
+            const avg = Math.round((r + l + w + s) / 4);
+            document.getElementById('avgVal').innerText = avg + '%';
+            
+            const status = document.getElementById('passStatus');
+            if (avg >= 60) {
+                status.innerText = 'PASS TRACK';
+                status.style.background = '#10b981';
+                status.style.color = '#ffffff';
+            } else {
+                status.innerText = 'FOCUS NEEDED';
+                status.style.background = '#f59e0b';
+                status.style.color = '#ffffff';
+            }
+
+            const defR = Math.max(1, 100 - r);
+            const defL = Math.max(1, 100 - l);
+            const defW = Math.max(1, 100 - w);
+            const defS = Math.max(1, 100 - s);
+            const sum = defR + defL + defW + defS;
+
+            document.getElementById('hoursBreakdown').innerHTML = `
+                <div>• Lesen: <strong>${((defR/sum)*hrs).toFixed(1)} hrs</strong></div>
+                <div>• Hören: <strong>${((defL/sum)*hrs).toFixed(1)} hrs</strong></div>
+                <div>• Schreiben: <strong>${((defW/sum)*hrs).toFixed(1)} hrs</strong></div>
+                <div>• Sprechen: <strong>${((defS/sum)*hrs).toFixed(1)} hrs</strong></div>
+            `;
+            document.getElementById('calcOutput').style.display = 'block';
+        }
+
+        const lessonsData = {
+            1: {
+                title: "1. Self-Introductions & Basics",
+                content: `
+                    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;">In Part 1 of the Goethe/telc Speaking module, you must introduce yourself clearly.</p>
+                    <div style="background: var(--card); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+                        <strong>Key Formula:</strong><br>
+                        • Ich heiße [Name].<br>
+                        • Ich komme aus [Country].<br>
+                        • Ich wohne in [City].<br>
+                        • Ich spreche Englisch und etwas Deutsch.
+                    </div>
+                    <div class="quiz-box">
+                        <strong>Quick Quiz: How do you say "I live in Germany"?</strong>
+                        <div class="quiz-option" onclick="checkQuiz(this, true)">Ich wohne in Deutschland.</div>
+                        <div class="quiz-option" onclick="checkQuiz(this, false)">Ich komme aus Deutschland.</div>
+                    </div>
+                `
+            },
+            2: {
+                title: "2. Sentence Structure (Verb Position 2)",
+                content: `
+                    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;">In a standard German main sentence (Hauptsatz), the conjugated verb MUST always sit in Position 2.</p>
+                    <div style="background: var(--card); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+                        <strong>Example:</strong><br>
+                        • Heute <strong>lerne</strong> ich Deutsch.<br>
+                        • Ich <strong>lerne</strong> heute Deutsch.
+                    </div>
+                    <div class="quiz-box">
+                        <strong>Which sentence is grammatically correct?</strong>
+                        <div class="quiz-option" onclick="checkQuiz(this, false)">Heute ich lerne Deutsch.</div>
+                        <div class="quiz-option" onclick="checkQuiz(this, true)">Heute lerne ich Deutsch.</div>
+                    </div>
+                `
+            },
+            3: {
+                title: "3. Formal Email Writing Formula",
+                content: `
+                    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;">For formal letters in Goethe/telc exams, follow this mandatory structure:</p>
+                    <div style="background: var(--card); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+                        1. <strong>Salutation:</strong> Sehr geehrte Damen und Herren,<br>
+                        2. <strong>Reason:</strong> Ich schreibe Ihnen, weil...<br>
+                        3. <strong>Closing:</strong> Mit freundlichen Grüßen
+                    </div>
+                `
+            },
+            4: {
+                title: "4. Joint Planning Task (Sprechen)",
+                content: `
+                    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;">In Speaking Part 3, you plan an event with your partner using phrases like:</p>
+                    <div style="background: var(--card); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+                        • Wann hast du Zeit?<br>
+                        • Hast du am Samstag Zeit?<br>
+                        • Das passt mir gut!
+                    </div>
+                `
+            }
+        };
+
+        function openLesson(id) {
+            const data = lessonsData[id];
+            document.getElementById('lessonBody').innerHTML = `
+                <h2 style="font-size: 1.3rem; margin-bottom: 10px;">${data.title}</h2>
+                ${data.content}
+                <button class="btn-primary" style="margin-top: 20px; background: var(--success);" onclick="completeTopic(${id})">Mark Topic as Completed ✓</button>
+            `;
+            document.getElementById('lessonModal').classList.add('active');
+        }
+
+        function closeLesson() {
+            document.getElementById('lessonModal').classList.remove('active');
+        }
+
+        function checkQuiz(element, isCorrect) {
+            if (isCorrect) {
+                element.className = 'quiz-option correct';
+                element.innerText += ' — Correct! 🎉';
+            } else {
+                element.className = 'quiz-option wrong';
+                element.innerText += ' — Try Again ❌';
+            }
+        }
+
+        function completeTopic(id) {
+            if (!completedTopics.includes(id)) {
+                completedTopics.push(id);
+                localStorage.setItem('klarpunkt_completed', JSON.stringify(completedTopics));
+                updateProgressUI();
+            }
+            closeLesson();
+        }
+
+        function resetProgress() {
+            completedTopics = [];
+            localStorage.removeItem('klarpunkt_completed');
+            updateProgressUI();
+        }
+
+        // Initialize on load
+        updateProgressUI();
+    </script>
+</body>
+                                 </html>
